@@ -133,15 +133,15 @@ class _CardWidgetState extends State<CardWidget> {
     // Update Firestore based on the index clicked
     if (widget.index == 0) {
       FirebaseFirestore.instance.collection('users').doc(mobileNumber).update({
-        'isCoins': true,
+        'isCoins': 'true',
       });
     } else if (widget.index == 1) {
       FirebaseFirestore.instance.collection('users').doc(mobileNumber).update({
-        'isTen': true,
+        'isTen': 'true',
       });
     } else if (widget.index == 2) {
       FirebaseFirestore.instance.collection('users').doc(mobileNumber).update({
-        'isTwinty': true,
+        'isTwinty': 'true',
       });
     }
   }
