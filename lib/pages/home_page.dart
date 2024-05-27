@@ -7,14 +7,15 @@ import '../app_const.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/card_widget.dart';
 import 'contact_us.dart';
+import 'login_page.dart';
+
 class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-    late FirebaseMessaging _firebaseMessaging;
+  late FirebaseMessaging _firebaseMessaging;
 
   @override
   void initState() {
@@ -23,16 +24,25 @@ class _MyHomePageState extends State<MyHomePage> {
     _firebaseMessaging.getToken().then((String? token) {
       assert(token != null);
       print("FCM Token: $token");
-            _storeFCMToken(token!);
-
-      // Now you have the FCM token, you can store it or use it to send notifications.
+      _storeFCMToken(token!);
     });
   }
 
-   Future<void> _storeFCMToken(String token) async {
+  Future<void> _storeFCMToken(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('fcmToken', token);
   }
+
+  Future<void> _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (Route<dynamic> route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,7 +108,6 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('Home'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                // You can navigate to the home page here if you have one
               },
             ),
             Divider(),
@@ -107,7 +116,6 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('About Us'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                // You can navigate to the home page here if you have one
               },
             ),
             Divider(),
@@ -116,7 +124,6 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('Privacy Policy'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                // You can navigate to the home page here if you have one
               },
             ),
             Divider(),
@@ -125,28 +132,39 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('Contact Us'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                  Navigator.pushAndRemoveUntil(context, PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          ContactUsPage(),
-                      transitionDuration: Duration(milliseconds: 400),
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                        var begin = Offset(1.0, 0.0);
-                        var end = Offset.zero;
-                        var curve = Curves.ease;
-                        var tween = Tween(begin: begin, end: end)
-                            .chain(CurveTween(curve: curve));
-                        var offsetAnimation = animation.drive(tween);
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        ContactUsPage(),
+                    transitionDuration: Duration(milliseconds: 400),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      var begin = Offset(1.0, 0.0);
+                      var end = Offset.zero;
+                      var curve = Curves.ease;
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: curve));
+                      var offsetAnimation = animation.drive(tween);
 
-                        return SlideTransition(
-                          position: offsetAnimation,
-                          child: child,
-                        );
-                      },
-                    ), (route) => false);
+                      return SlideTransition(
+                        position: offsetAnimation,
+                        child: child,
+                      );
+                    },
+                  ),
+                  (route) => false,
+                );
               },
             ),
-            
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                _logout(context);
+              },
+            ),
           ],
         ),
       ),
@@ -158,7 +176,6 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisSpacing: 5,
             crossAxisSpacing: 5),
         itemCount: coinsNames.length, // Number of cards
-
         itemBuilder: (context, index) {
           return CardWidget(index: index);
         },
