@@ -32,44 +32,42 @@ class RequestHistoryPage extends StatelessWidget {
             return Center(child: Text('No mobile number found.'));
           }
 
-          return StreamBuilder<QuerySnapshot>(
+          return StreamBuilder<DocumentSnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('users')
                 .doc(mobileNumber)
-                .collection('requests')
-                .orderBy('timestamp', descending: true)
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Center(child: CircularProgressIndicator());
               }
 
-              var requests = snapshot.data!.docs;
+              var userDoc = snapshot.data!;
+              var amount = userDoc['amount'] ?? '';
+              var message = userDoc['message'] ?? '';
+              var status = userDoc['status'] ?? 'N/A';
+              var timestamp = userDoc['timestamp'] ?? Timestamp.now();
 
-              if (requests.isEmpty) {
+              if (amount.isEmpty) {
                 return Center(child: Text('No requests made yet.'));
               }
 
-              return ListView.builder(
-                itemCount: requests.length,
-                itemBuilder: (context, index) {
-                  var request = requests[index];
-                  return Card(
+              return ListView(
+                children: [
+                  Card(
                     child: ListTile(
-                      title: Text('Type: ${request['type']}'),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Amount: ${request['amount']}'),
-                          Text('Message: ${request['message']}'),
-                       
-                          Text('Date: ${_formatTimestamp(request['timestamp'])}'), // Format the timestamp
-                             Text('Status: ${request['status']}'), // Display the status
+                          Text('Amount: $amount'),
+                          Text('Message: $message'),
+                          Text('Date: ${_formatTimestamp(timestamp)}'),
+                          Text('Status: $status'),
                         ],
                       ),
                     ),
-                  );
-                },
+                  ),
+                ],
               );
             },
           );

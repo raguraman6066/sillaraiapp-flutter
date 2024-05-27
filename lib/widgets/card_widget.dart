@@ -56,6 +56,7 @@ class _CardWidgetState extends State<CardWidget> {
   }
 
   void _showBottomSheet(BuildContext context) {
+    var formKey=GlobalKey<FormState>();
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -69,34 +70,49 @@ class _CardWidgetState extends State<CardWidget> {
                 color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(20)),
             child: Center(
-                child: Text(
-              'Request Amount',
-              style: TextStyle(
-                  color: Theme.of(context).canvasColor, fontSize: 20),
-            )),
+              child: Text(
+                'Request Amount',
+                style: TextStyle(
+                  color: Theme.of(context).canvasColor,
+                  fontSize: 20,
+                ),
+              ),
+            ),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(
-                  prefix: Text('₹ '),
-                    labelText: 'Amount', border: OutlineInputBorder()),
-                onChanged: (value) {
-                  amount = value;
-                },
-                keyboardType: TextInputType.number,
-              ),
-              SizedBox(height: 8),
-              TextFormField(
-                decoration: InputDecoration(
-                    labelText: 'Message', border: OutlineInputBorder()),
-                onChanged: (value) {
-                  message = value;
-                },
-                maxLines: 3, // Allow multiline input
-              ),
-            ],
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextFormField(
+                  decoration: InputDecoration(
+                    prefix: Text('₹ '),
+                    labelText: 'Amount',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    amount = value;
+                  },
+                  validator: (value){
+                    if(value!.isEmpty||value==null){
+                      return 'Amount is required';
+                    }
+                  },
+                  keyboardType: TextInputType.number,
+                ),
+                SizedBox(height: 8),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Message',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    message = value;
+                  },
+                  maxLines: 3, // Allow multiline input
+                ),
+              ],
+            ),
           ),
           actions: <Widget>[
             ElevatedButton(
@@ -140,11 +156,11 @@ class _CardWidgetState extends State<CardWidget> {
       requestType = '20rs';
     }
 
-    await FirebaseFirestore.instance.collection('users').doc(mobileNumber).collection('requests').add({
-      'type': requestType,
+    await FirebaseFirestore.instance.collection('users').doc(mobileNumber).update({
+      
       'amount': amount,
       'message': message,
-      'status': 'Pending', // Adding status
+      'status': 'Pending', 
       'timestamp': FieldValue.serverTimestamp(),
     });
   }

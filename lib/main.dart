@@ -36,7 +36,8 @@ class MyApp extends StatelessWidget {
       theme: darkTheme.isDarkTheme == true ? theme.dark() : theme.light(),
       home: FutureBuilder(
         future: _checkLoginStatus(),
-        builder: (context, snapshot) {
+        builder: (context, snapshot) 
+         {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();
           } else {
