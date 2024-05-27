@@ -8,6 +8,7 @@ import '../providers/theme_provider.dart';
 import '../widgets/card_widget.dart';
 import 'contact_us.dart';
 import 'login_page.dart';
+import 'request_history.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -110,6 +111,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.pop(context); // Close the drawer
               },
             ),
+              Divider(),
+            ListTile(
+              leading: Icon(Icons.history),
+              title: Text('Request History'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RequestHistoryPage()),
+                );
+              },
+            ),
             Divider(),
             ListTile(
               leading: Icon(Icons.person),
@@ -132,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('Contact Us'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                Navigator.pushAndRemoveUntil(
+                Navigator.push(
                   context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
@@ -152,7 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     },
                   ),
-                  (route) => false,
+              
                 );
               },
             ),

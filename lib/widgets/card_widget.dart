@@ -80,6 +80,7 @@ class _CardWidgetState extends State<CardWidget> {
             children: <Widget>[
               TextFormField(
                 decoration: InputDecoration(
+                  prefix: Text('₹ '),
                     labelText: 'Amount', border: OutlineInputBorder()),
                 onChanged: (value) {
                   amount = value;
@@ -101,7 +102,7 @@ class _CardWidgetState extends State<CardWidget> {
             ElevatedButton(
               onPressed: () {
                 _showToast(context);
-                _updateFirestore();
+                _updateFirestore(amount, message);
                 Navigator.pop(context);
               },
               child: Text('Submit'),
@@ -116,46 +117,35 @@ class _CardWidgetState extends State<CardWidget> {
     final scaffold = ScaffoldMessenger.of(context);
     scaffold.showSnackBar(
       SnackBar(
-        duration: Duration(seconds: 1),
+        duration: Duration(seconds: 2),
         content: Text('Your request has been sent.'),
         backgroundColor: Colors.green,
       ),
     );
   }
 
-  void _updateFirestore() async{
-    SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
-    String? mobileNumber=sharedPreferences.getString('mobileNumber');
+  void _updateFirestore(String amount, String message) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? mobileNumber = sharedPreferences.getString('mobileNumber');
     setState(() {
       isClicked = true;
     });
 
-    // Update Firestore based on the index clicked
+    String requestType;
     if (widget.index == 0) {
-      FirebaseFirestore.instance.collection('users').doc(mobileNumber).update({
-        'isCoins': 'true',
-      });
+      requestType = 'Coins';
     } else if (widget.index == 1) {
-      FirebaseFirestore.instance.collection('users').doc(mobileNumber).update({
-        'isTen': 'true',
-      });
-    } else if (widget.index == 2) {
-      FirebaseFirestore.instance.collection('users').doc(mobileNumber).update({
-        'isTwinty': 'true',
-      });
+      requestType = '10rs';
+    } else {
+      requestType = '20rs';
     }
+
+    await FirebaseFirestore.instance.collection('users').doc(mobileNumber).collection('requests').add({
+      'type': requestType,
+      'amount': amount,
+      'message': message,
+      'status': 'Pending', // Adding status
+      'timestamp': FieldValue.serverTimestamp(),
+    });
   }
 }
-
-class Coin {
-  final String imageUrl;
-  final String note;
-
-  Coin({required this.imageUrl, required this.note});
-}
-
-List<Coin> coinsList = [
-  Coin(imageUrl: 'path_to_image', note: 'Note for image 1'),
-  Coin(imageUrl: 'path_to_image', note: 'Note for image 2'),
-  Coin(imageUrl: 'path_to_image', note: 'Note for image 3'),
-];

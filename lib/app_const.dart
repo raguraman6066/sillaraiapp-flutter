@@ -1,3 +1,4 @@
+import 'models/coin.dart';
 import 'widgets/card_widget.dart';
 
 const app_name="Coins App";
