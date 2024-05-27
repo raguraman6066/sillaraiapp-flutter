@@ -28,16 +28,12 @@ class _CardWidgetState extends State<CardWidget> {
             height: MediaQuery.of(context).size.width * 0.28,
             fit: BoxFit.fill,
           ),
-          SizedBox(
-            height: 5,
-          ),
+          SizedBox(height: 5),
           Text(
             coinsNames[widget.index].note,
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
           ),
-          SizedBox(
-            height: 8,
-          ),
+          SizedBox(height: 8),
           ElevatedButton(
             onPressed: () {
               _showBottomSheet(context);
@@ -56,74 +52,107 @@ class _CardWidgetState extends State<CardWidget> {
   }
 
   void _showBottomSheet(BuildContext context) {
-    var formKey=GlobalKey<FormState>();
+    var formKey = GlobalKey<FormState>();
+    String amount = '';
+    String message = '';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String amount = '';
-        String message = '';
-
-        return AlertDialog(
-          title: Container(
-            height: 50,
-            decoration: BoxDecoration(
-                color: Theme.of(context).dividerColor,
-                borderRadius: BorderRadius.circular(20)),
-            child: Center(
-              child: Text(
-                'Request Amount',
-                style: TextStyle(
-                  color: Theme.of(context).canvasColor,
-                  fontSize: 20,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).dividerColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Center(
+                  child: Text(
+                    'Request Amount',
+                    style: TextStyle(
+                      color: Theme.of(context).canvasColor,
+                      fontSize: 20,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          content: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                TextFormField(
-                  decoration: InputDecoration(
-                    prefix: Text('₹ '),
-                    labelText: 'Amount',
-                    border: OutlineInputBorder(),
+              content: Form(
+                key: formKey,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.90,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      TextFormField(
+                        decoration: InputDecoration(
+                          prefix: Text('₹ '),
+                          labelText: 'Amount',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            amount =
+                                value; // Update the amount variable when text changes
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Amount is required';
+                          }
+                          return null;
+                        },
+                        keyboardType: TextInputType.number,
+                      ),
+                      SizedBox(height: 8),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Message',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          message = value;
+                        },
+                        maxLines: 3,
+                      ),
+                    ],
                   ),
-                  onChanged: (value) {
-                    amount = value;
-                  },
-                  validator: (value){
-                    if(value!.isEmpty||value==null){
-                      return 'Amount is required';
-                    }
-                  },
-                  keyboardType: TextInputType.number,
                 ),
-                SizedBox(height: 8),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Message',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
-                    message = value;
-                  },
-                  maxLines: 3, // Allow multiline input
+              ),
+              actions: <Widget>[
+                ElevatedButton(
+                  onPressed: isClicked
+                      ? null
+                      : () async {
+                          if (formKey.currentState!.validate()) {
+                            setState(() {
+                              isClicked = true; // Show circular loading
+                            });
+
+                            // Hide keyboard
+                            FocusScope.of(context).unfocus();
+
+                            // Update Firestore
+                            _updateFirestore(amount, message);
+
+                            // Simulate a delay (remove this line in your actual implementation)
+                            await Future.delayed(Duration(seconds: 1));
+                            setState(() {
+                              isClicked = false; // Show circular loading
+                            });
+                            // Show toast and close dialog
+                            _showToast(context);
+                            Navigator.pop(context);
+                          }
+                        },
+                  child: isClicked
+                      ? CircularProgressIndicator()
+                      : Text('Submit'), // Change label based on isClicked
                 ),
               ],
-            ),
-          ),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                _showToast(context);
-                _updateFirestore(amount, message);
-                Navigator.pop(context);
-              },
-              child: Text('Submit'),
-            ),
-          ],
+            );
+          },
         );
       },
     );
@@ -143,9 +172,6 @@ class _CardWidgetState extends State<CardWidget> {
   void _updateFirestore(String amount, String message) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? mobileNumber = sharedPreferences.getString('mobileNumber');
-    setState(() {
-      isClicked = true;
-    });
 
     String requestType;
     if (widget.index == 0) {
@@ -156,11 +182,15 @@ class _CardWidgetState extends State<CardWidget> {
       requestType = '20rs';
     }
 
-    await FirebaseFirestore.instance.collection('users').doc(mobileNumber).update({
-      
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(mobileNumber)
+        .collection('requests')
+        .add({
+      'requestType': requestType,
       'amount': amount,
       'message': message,
-      'status': 'Pending', 
+      'status': 'Pending',
       'timestamp': FieldValue.serverTimestamp(),
     });
   }

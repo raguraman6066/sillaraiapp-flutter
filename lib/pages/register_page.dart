@@ -45,13 +45,7 @@ class _RegisterFormState extends State<RegisterForm> {
           'mobileNumber': mobileNumber,
           'address': address,
           'pincode': pincode,
-          'isCoins': 'false',
-          'isTen': 'false',
-          'isTwinty': 'false',
-          'amount': '', // Initialize amount to empty string
-          'message': '', // Initialize message to empty string
-          'status': 'Pending', // Set initial status to Pending
-          'timestamp': FieldValue.serverTimestamp(),
+   
           });
 
           SharedPreferences sharedPreferences =
@@ -115,7 +109,10 @@ class _RegisterFormState extends State<RegisterForm> {
                 SizedBox(height: 10),
                 TextFormField(
                   controller: _mobileNumberController,
+                  
                   decoration: const InputDecoration(
+                    prefix: Text('+91 '),
+                    
                     labelText: 'Mobile Number',
                     border: OutlineInputBorder(),
                   ),

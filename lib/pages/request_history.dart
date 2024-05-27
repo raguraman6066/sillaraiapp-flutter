@@ -32,42 +32,43 @@ class RequestHistoryPage extends StatelessWidget {
             return Center(child: Text('No mobile number found.'));
           }
 
-          return StreamBuilder<DocumentSnapshot>(
+          return StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('users')
                 .doc(mobileNumber)
+                .collection('requests')
+                .orderBy('timestamp', descending: true)
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Center(child: CircularProgressIndicator());
               }
 
-              var userDoc = snapshot.data!;
-              var amount = userDoc['amount'] ?? '';
-              var message = userDoc['message'] ?? '';
-              var status = userDoc['status'] ?? 'N/A';
-              var timestamp = userDoc['timestamp'] ?? Timestamp.now();
+              var requests = snapshot.data!.docs;
 
-              if (amount.isEmpty) {
+              if (requests.isEmpty) {
                 return Center(child: Text('No requests made yet.'));
               }
 
-              return ListView(
-                children: [
-                  Card(
+              return ListView.builder(
+                itemCount: requests.length,
+                itemBuilder: (context, index) {
+                  var request = requests[index];
+                  return Card(
                     child: ListTile(
+                      title: Text('Type: ${request['requestType']}'),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Amount: $amount'),
-                          Text('Message: $message'),
-                          Text('Date: ${_formatTimestamp(timestamp)}'),
-                          Text('Status: $status'),
+                          Text('Amount: ${request['amount']}'),
+                          Text('Message: ${request['message']}'),
+                          Text('Date: ${_formatTimestamp(request['timestamp'])}'),
+                          Text('Status: ${request['status']}'),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                  );
+                },
               );
             },
           );
