@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
-class RequestHistoryPage extends StatelessWidget {
+class RequestHistory extends StatelessWidget {
   Future<String?> _getMobileNumber() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('mobileNumber');
@@ -11,7 +11,7 @@ class RequestHistoryPage extends StatelessWidget {
 
   String _formatTimestamp(Timestamp timestamp) {
     DateTime dateTime = timestamp.toDate();
-    return DateFormat('dd MMMM yyyy hh:mm a').format(dateTime);
+    return DateFormat('dd MMMM yyyy, hh:mm a').format(dateTime);
   }
 
   @override
@@ -55,16 +55,19 @@ class RequestHistoryPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   var request = requests[index];
                   return Card(
+                    margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                     child: ListTile(
                       title: Text('Type: ${request['requestType']}'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Amount: ${request['amount']}'),
-                          Text('Message: ${request['message']}'),
-                          Text('Date: ${_formatTimestamp(request['timestamp'])}'),
-                          Text('Status: ${request['status']}'),
-                        ],
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Quantity: ${request['quantity']}'),
+                            Text('Status: ${request['status']}'),
+                            Text('Date: ${_formatTimestamp(request['timestamp'])}'),
+                          ],
+                        ),
                       ),
                     ),
                   );

@@ -15,6 +15,7 @@ class CardWidget extends StatefulWidget {
 
 class _CardWidgetState extends State<CardWidget> {
   bool isClicked = false;
+  int quantity = 1; // Initial quantity
 
   @override
   Widget build(BuildContext context) {
@@ -52,15 +53,37 @@ class _CardWidgetState extends State<CardWidget> {
   }
 
   void _showBottomSheet(BuildContext context) {
-    var formKey = GlobalKey<FormState>();
-    String amount = '';
-    String message = '';
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            int amount = 0; // Initialize amount to 0
+            int bundles20 = 0;
+            int bundles10 = 0;
+            if (widget.index == 0) {
+              // For coins
+              amount = quantity * 1000;
+            } else {
+              // For notes
+              if (quantity <= 4) {
+                amount = quantity * 1000;
+                bundles20 = quantity;
+              } else if (quantity == 5) {
+                amount = 5000;
+                bundles20 = 4;
+                bundles10 = 1;
+              } else if (quantity < 10) {
+                amount = 4000 + (quantity - 4) * 1000;
+                bundles20 = quantity;
+                bundles10 = 1;
+              } else if (quantity == 10) {
+                amount = 10000;
+                bundles20 = 8;
+                bundles10 = 2;
+              }
+            }
+
             return AlertDialog(
               title: Container(
                 height: 50,
@@ -70,7 +93,7 @@ class _CardWidgetState extends State<CardWidget> {
                 ),
                 child: Center(
                   child: Text(
-                    'Request Amount',
+                    'Request Quantity',
                     style: TextStyle(
                       color: Theme.of(context).canvasColor,
                       fontSize: 20,
@@ -78,46 +101,62 @@ class _CardWidgetState extends State<CardWidget> {
                   ),
                 ),
               ),
-              content: Form(
-                key: formKey,
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.90,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      TextFormField(
-                        decoration: InputDecoration(
-                          prefix: Text('₹ '),
-                          labelText: 'Amount',
-                          border: OutlineInputBorder(),
+              content: Container(
+                width: MediaQuery.of(context).size.width * 0.90,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove),
+                          onPressed: () {
+                            setState(() {
+                              if (quantity > 1) {
+                                quantity--;
+                              }
+                            });
+                          },
                         ),
-                        onChanged: (value) {
-                          setState(() {
-                            amount =
-                                value; // Update the amount variable when text changes
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Amount is required';
-                          }
-                          return null;
-                        },
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: 8),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Message',
-                          border: OutlineInputBorder(),
+                        Text(
+                          quantity.toString(),
+                          style: TextStyle(fontSize: 20),
                         ),
-                        onChanged: (value) {
-                          message = value;
-                        },
-                        maxLines: 3,
+                        IconButton(
+                          icon: Icon(Icons.add),
+                          onPressed: () {
+                            setState(() {
+                              if (quantity < 10) {
+                                quantity++;
+                              }
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'Total amount: ₹$amount',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
+                    SizedBox(height: 10,),
+                    Divider(),
+                           SizedBox(height: 10,),
+                    if (widget.index == 1) // Display bundle details only for notes
+                      Column(
+                        children: [
+                          Text(
+                            'Bundles of ₹20: $bundles20',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          if (bundles10 > 0)
+                            Text(
+                              'Bundles of ₹10: $bundles10',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                        ],
                       ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
               actions: <Widget>[
@@ -125,26 +164,24 @@ class _CardWidgetState extends State<CardWidget> {
                   onPressed: isClicked
                       ? null
                       : () async {
-                          if (formKey.currentState!.validate()) {
-                            setState(() {
-                              isClicked = true; // Show circular loading
-                            });
+                          setState(() {
+                            isClicked = true; // Show circular loading
+                          });
 
-                            // Hide keyboard
-                            FocusScope.of(context).unfocus();
+                          // Hide keyboard
+                          FocusScope.of(context).unfocus();
 
-                            // Update Firestore
-                            _updateFirestore(amount, message);
+                          // Update Firestore
+                          _updateFirestore(quantity);
 
-                            // Simulate a delay (remove this line in your actual implementation)
-                            await Future.delayed(Duration(seconds: 1));
-                            setState(() {
-                              isClicked = false; // Show circular loading
-                            });
-                            // Show toast and close dialog
-                            _showToast(context);
-                            Navigator.pop(context);
-                          }
+                          // Simulate a delay (remove this line in your actual implementation)
+                          await Future.delayed(Duration(seconds: 1));
+                          setState(() {
+                            isClicked = false; // Show circular loading
+                          });
+                          // Show toast and close dialog
+                          _showToast(context);
+                          Navigator.pop(context);
                         },
                   child: isClicked
                       ? CircularProgressIndicator()
@@ -169,17 +206,15 @@ class _CardWidgetState extends State<CardWidget> {
     );
   }
 
-  void _updateFirestore(String amount, String message) async {
+  void _updateFirestore(int quantity) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? mobileNumber = sharedPreferences.getString('mobileNumber');
 
     String requestType;
     if (widget.index == 0) {
       requestType = 'Coins';
-    } else if (widget.index == 1) {
-      requestType = '10rs';
     } else {
-      requestType = '20rs';
+      requestType = 'Notes';
     }
 
     await FirebaseFirestore.instance
@@ -188,10 +223,10 @@ class _CardWidgetState extends State<CardWidget> {
         .collection('requests')
         .add({
       'requestType': requestType,
-      'amount': amount,
-      'message': message,
+      'quantity': quantity,
       'status': 'Pending',
       'timestamp': FieldValue.serverTimestamp(),
     });
   }
 }
+

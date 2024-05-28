@@ -119,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.pop(context); // Close the drawer
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RequestHistoryPage()),
+                  MaterialPageRoute(builder: (context) => RequestHistory()),
                 );
               },
             ),
