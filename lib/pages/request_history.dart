@@ -63,7 +63,7 @@ class RequestHistory extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Quantity: ${request['quantity']}'),
+                            Text('Quantity: ${request['amount']}'),
                             Text('Status: ${request['status']}'),
                             Text('Date: ${_formatTimestamp(request['timestamp'])}'),
                           ],
