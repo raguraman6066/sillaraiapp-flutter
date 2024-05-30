@@ -49,7 +49,6 @@ class RequestHistory extends StatelessWidget {
               if (requests.isEmpty) {
                 return Center(child: Text('No requests made yet.'));
               }
-
               return ListView.builder(
                 itemCount: requests.length,
                 itemBuilder: (context, index) {
@@ -63,7 +62,7 @@ class RequestHistory extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Quantity: ${request['amount']}'),
+                            Text('Amount: ${request['amount']}'),
                             Text('Status: ${request['status']}'),
                             Text('Date: ${_formatTimestamp(request['timestamp'])}'),
                           ],
