@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
     MaterialTheme theme = MaterialTheme(textTheme);
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: '$app_name',
       theme: darkTheme.isDarkTheme == true ? theme.dark() : theme.light(),
       home: FutureBuilder(

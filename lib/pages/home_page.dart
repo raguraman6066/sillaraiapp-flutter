@@ -173,6 +173,7 @@ print(userQuery);
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.amber,
+                    child: Icon(Icons.person,size: 50,color: Colors.white,),
                     // backgroundImage: AssetImage(
                     //     'assets/profile_image.jpg'), // Provide your image path
                   ),
@@ -221,14 +222,15 @@ print(userQuery);
             //     Navigator.pop(context); // Close the drawer
             //   },
             // ),
-            // Divider(),
-            // ListTile(
-            //   leading: Icon(Icons.lock),
-            //   title: Text('Privacy Policy'),
-            //   onTap: () {
-            //     Navigator.pop(context); // Close the drawer
-            //   },
-            // ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.lock),
+              title: Text('Privacy Policy'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                _launchURL(context);
+              },
+            ),
             Divider(),
             ListTile(
               leading: Icon(Icons.email),
@@ -284,5 +286,17 @@ print(userQuery);
         },
       ),
     );
+  }
+    _launchURL(BuildContext context) async {
+    const url = 'https://raguraman6066.github.io/sillarai-app-privacy-policy/';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not launch $url'),
+        ),
+      );
+    }
   }
 }
