@@ -14,3 +14,4 @@ class Coin {
 
   Coin({required this.imageUrl, required this.note});
 }
+ const String packageName = 'com.kathiravanagency.sillaraiapp';

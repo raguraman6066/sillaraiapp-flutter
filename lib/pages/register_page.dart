@@ -166,6 +166,39 @@ class _RegisterFormState extends State<RegisterForm> {
           ),
         ),
       ),
+          bottomSheet: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Have an account?'),
+          TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        LoginPage(),
+                    transitionDuration: Duration(milliseconds: 400),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      var begin = Offset(1.0, 0.0);
+                      var end = Offset.zero;
+                      var curve = Curves.ease;
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: curve));
+                      var offsetAnimation = animation.drive(tween);
+
+                      return SlideTransition(
+                        position: offsetAnimation,
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
+              child: Text('Login'))
+        ],
+      ),
+   
     );
   }
 

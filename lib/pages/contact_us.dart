@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 class ContactUsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -25,14 +26,24 @@ class ContactUsPage extends StatelessWidget {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  'Email: contact@example.com',
+                  'Email: saleskathiravanagenciestpt@gmail.com',
                   style: TextStyle(fontSize: 16),
                 ),
                 SizedBox(height: 10),
-                Text(
-                  'Phone: +1 123-456-7890',
-                  style: TextStyle(fontSize: 16),
-                ),
+               GestureDetector(
+          onTap: () {
+            openDialPad('+91-6369663834'); // Replace with your phone number
+          },
+          child: Text(
+            'Phone: +91-6369663834', // Replace with your phone number
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.blue, // Change color to indicate it's clickable
+              decoration: TextDecoration.underline, // Add underline to indicate it's clickable
+            ),
+          ),
+        ),
+      
                 SizedBox(height: 20),
                 Divider(),
                 SizedBox(height: 20),
@@ -45,18 +56,11 @@ class ContactUsPage extends StatelessWidget {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  '1234 Main Street',
+                  'Tirupattur',
                   style: TextStyle(fontSize: 16),
                 ),
-                Text(
-                  'City, State, Zip Code',
-                  style: TextStyle(fontSize: 16),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'United States',
-                  style: TextStyle(fontSize: 16),
-                ),
+              
+               
               ],
             ),
           ),
@@ -64,4 +68,12 @@ class ContactUsPage extends StatelessWidget {
       ),
     );
   }
+openDialPad(String phoneNumber) async {
+    Uri url = Uri(scheme: "tel", path: phoneNumber);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+       print("Can't open dial pad.");
+    }
+}
 }
