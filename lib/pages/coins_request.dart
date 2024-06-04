@@ -44,7 +44,7 @@ class _CoinsRequestPageState extends State<CoinsRequestPage> {
                   icon: Icon(Icons.add),
                   onPressed: () {
                     setState(() {
-                      quantity++;
+                      if (quantity < 10) quantity++;
                     });
                   },
                 ),
@@ -74,8 +74,6 @@ class _CoinsRequestPageState extends State<CoinsRequestPage> {
                       setState(() {
                         isClicked = false;
                       });
-
-                  
                     },
               child: isClicked
                   ? CircularProgressIndicator()
@@ -86,8 +84,6 @@ class _CoinsRequestPageState extends State<CoinsRequestPage> {
       ),
     );
   }
-
-
 
   Future<void> _updateFirestore(int quantity, int amount, int deliveryCharge) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();

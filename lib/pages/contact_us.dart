@@ -75,5 +75,5 @@ openDialPad(String phoneNumber) async {
     } else {
        print("Can't open dial pad.");
     }
-}
+  }
 }
